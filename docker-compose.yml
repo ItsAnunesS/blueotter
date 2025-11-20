@@ -1,36 +1,42 @@
-version: '3.8'
-
 services:
   app:
+    container_name: blueotter-app
     image: node:20-alpine
     working_dir: /usr/src/app
     command: sh -c "yarn install && yarn run start:dev"
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
+    env_file:
+      - .env
     environment:
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=blueotter
+      - NODE_ENV=${NODE_ENV:-development}
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - blueotter-network
 
   db:
-    image: postgres:15
+    container_name: blueotter-db
+    image: postgres:latest
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=blueotter
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - blueotter-network
 
