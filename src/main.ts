@@ -8,7 +8,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('BlueOtter API')
     .setDescription(
-      'Essa api permite interagir e manipular dados de utilizadores do GitHub',
+      'This API allows interacting with and manipulating GitHub user data.',
     )
     .setVersion('1.0.0')
     .build();

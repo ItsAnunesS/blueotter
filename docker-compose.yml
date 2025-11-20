@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    image: node:20-alpine
+    working_dir: /usr/src/app
+    command: sh -c "yarn install && yarn run start:dev"
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=blueotter
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+    networks:
+      - blueotter-network
+
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=blueotter
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - blueotter-network
+
+networks:
+  blueotter-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
