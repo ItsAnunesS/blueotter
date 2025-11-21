@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity('repositories')
-export class GithubRepository {
+export class RepositoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

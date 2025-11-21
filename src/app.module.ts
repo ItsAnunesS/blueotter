@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { GithubModule } from './github/github.module';
+import { ReposModule } from './repos/repos.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { GithubModule } from './github/github.module';
       inject: [ConfigService],
     }),
     GithubModule,
+    ReposModule,
   ],
   controllers: [AppController],
   providers: [AppService],
