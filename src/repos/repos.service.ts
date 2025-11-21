@@ -1,30 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { firstValueFrom } from 'rxjs';
 import { RepositoryEntity } from './entities/repository.entity';
 import { IGithubRepository } from '../github/interfaces/github-repository.interface';
+import { GithubService } from 'src/github/github.service';
 
 @Injectable()
 export class ReposService {
   constructor(
-    private readonly httpService: HttpService,
     @InjectRepository(RepositoryEntity)
     private readonly repositoryEntity: Repository<RepositoryEntity>,
+    private readonly githubService: GithubService,
   ) {}
 
-  githubEndpoint = 'https://api.github.com/users/';
-
   async getUserRepos(username: string): Promise<RepositoryEntity[]> {
-    const userId = await this.getGithubUserId(username);
+    const userId = await this.githubService.getUserId(username);
     return this.repositoryEntity.find({ where: { user_id: userId } });
   }
 
   async syncUserRepositories(
     username: string,
   ): Promise<{ message: string; count: number }> {
-    const repos = await this.getGithubUserRepos(username);
+    const repos: IGithubRepository[] =
+      await this.githubService.getUserRepos(username);
 
     const savedRepos: RepositoryEntity[] = [];
     for (const {
@@ -74,25 +72,5 @@ export class ReposService {
       message: `Successfully synced ${savedRepos.length} repositories for user ${username}`,
       count: savedRepos.length,
     };
-  }
-
-  private async getGithubUserRepos(
-    username: string,
-  ): Promise<IGithubRepository[]> {
-    const response = await firstValueFrom(
-      this.httpService.get<IGithubRepository[]>(
-        `${this.githubEndpoint}${username}/repos`,
-      ),
-    );
-
-    return response.data;
-  }
-
-  private async getGithubUserId(username: string): Promise<number> {
-    const response = await firstValueFrom(
-      this.httpService.get<{ id: number }>(`${this.githubEndpoint}${username}`),
-    );
-
-    return response.data.id;
   }
 }

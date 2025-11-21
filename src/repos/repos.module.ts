@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ReposController } from './repos.controller';
 import { ReposService } from './repos.service';
-import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RepositoryEntity } from './entities/repository.entity';
+import { GithubModule } from '../github/github.module';
 
 @Module({
-  imports: [HttpModule, TypeOrmModule.forFeature([RepositoryEntity])],
+  imports: [TypeOrmModule.forFeature([RepositoryEntity]), GithubModule],
   controllers: [ReposController],
   providers: [ReposService],
 })

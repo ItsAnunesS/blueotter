@@ -9,9 +9,7 @@ export class GithubService {
 
   githubEndpoint = 'https://api.github.com/users/';
 
-  private async getGithubUserRepos(
-    username: string,
-  ): Promise<IGithubRepository[]> {
+  async getUserRepos(username: string): Promise<IGithubRepository[]> {
     const response = await firstValueFrom(
       this.httpService.get<IGithubRepository[]>(
         `${this.githubEndpoint}${username}/repos`,
@@ -21,7 +19,7 @@ export class GithubService {
     return response.data;
   }
 
-  private async getGithubUserId(username: string): Promise<number> {
+  async getUserId(username: string): Promise<number> {
     const response = await firstValueFrom(
       this.httpService.get<{ id: number }>(`${this.githubEndpoint}${username}`),
     );
