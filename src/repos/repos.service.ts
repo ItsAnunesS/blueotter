@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RepositoryEntity } from './entities/repository.entity';
-import { IGithubRepository } from '../github/interfaces/github-repository.interface';
+import {
+  IGithubRepository,
+  IUserRepoCount,
+} from '../github/interfaces/github-repository.interface';
 import { GithubService } from 'src/github/github.service';
-import { SyncDto } from './dto/sync.dto';
+import { SyncDto } from './dtos/sync.dto';
+import { AnalyticsDto } from './dtos/analytics.dto';
 
 @Injectable()
 export class ReposService {
@@ -84,19 +88,80 @@ export class ReposService {
     });
   }
 
-  async getAnalytics(user?: string, topN?: number): Promise<any> {
-    const userId = await this.githubService.getUserId(user);
+  async getAnalytics(user?: string, topN?: number): Promise<AnalyticsDto> {
+    const limit = Math.min(Math.max(topN ?? 5, 1), 20);
 
-    const queryBuilder = this.repositoryEntity.createQueryBuilder('repo');
+    const isGlobal = !user;
 
-    if (userId) {
-      queryBuilder.andWhere('repo.user_id = :userId', { userId });
+    const baseQuery = this.repositoryEntity.createQueryBuilder('repo');
+
+    if (user) {
+      const userId = await this.githubService.getUserId(user);
+      if (userId) {
+        baseQuery.andWhere('repo.user_id = :userId', { userId });
+      }
     }
 
-    if (topN) {
-      queryBuilder.take(topN);
+    const repos = await baseQuery.getMany();
+
+    const summary = {
+      total_repos: repos.length,
+      ...(isGlobal && {
+        total_users: new Set(repos.map((r) => r.user_id)).size,
+      }),
+    };
+
+    const languagesMap = new Map<string, number>();
+    const monthlyCount = new Map<string, number>();
+    repos.forEach((repo) => {
+      const lang = repo.language ?? 'Unknown';
+      languagesMap.set(lang, (languagesMap.get(lang) ?? 0) + 1);
+
+      const date = new Date(repo.github_created_at);
+      const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      monthlyCount.set(month, (monthlyCount.get(month) ?? 0) + 1);
+    });
+
+    const languages = Object.fromEntries(
+      Array.from(languagesMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit),
+    );
+
+    const timelineCreatedMonthly = Array.from(monthlyCount.entries())
+      .map(([month, count]) => ({ month, count }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+
+    let topUsersByRepos: AnalyticsDto['top_users_by_repos'];
+    if (isGlobal) {
+      const userRepoCount = new Map<string, IUserRepoCount>();
+
+      repos.forEach((repo) => {
+        const existing = userRepoCount.get(repo.user_login);
+        if (existing) {
+          existing.count++;
+        } else {
+          userRepoCount.set(repo.user_login, {
+            login: repo.user_login,
+            count: 1,
+          });
+        }
+      });
+
+      topUsersByRepos = Array.from(userRepoCount.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, limit)
+        .map((u) => ({
+          user_login: u.login,
+          repo_count: u.count,
+        }));
     }
 
-    return queryBuilder.getMany();
+    return {
+      summary,
+      languages,
+      timeline_created_monthly: timelineCreatedMonthly,
+      ...(isGlobal && { top_users_by_repos: topUsersByRepos }),
+    };
   }
 }

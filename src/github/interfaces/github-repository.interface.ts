@@ -27,3 +27,8 @@ export interface IGithubRepository {
   default_branch: string;
   visibility: string;
 }
+
+export interface IUserRepoCount {
+  login: string;
+  count: number;
+}
