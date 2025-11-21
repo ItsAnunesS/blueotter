@@ -13,12 +13,12 @@ export class ReposService {
     private readonly githubService: GithubService,
   ) {}
 
-  async getUserRepos(username: string): Promise<RepositoryEntity[]> {
+  async getByUser(username: string): Promise<RepositoryEntity[]> {
     const userId = await this.githubService.getUserId(username);
     return this.repositoryEntity.find({ where: { user_id: userId } });
   }
 
-  async syncUserRepositories(
+  async syncByUser(
     username: string,
   ): Promise<{ message: string; count: number }> {
     const repos: IGithubRepository[] =
@@ -72,5 +72,16 @@ export class ReposService {
       message: `Successfully synced ${savedRepos.length} repositories for user ${username}`,
       count: savedRepos.length,
     };
+  }
+
+  async getAll(search?: string): Promise<RepositoryEntity[]> {
+    return this.repositoryEntity.find({
+      where: [
+        { name: search },
+        { description: search },
+        { language: search },
+        { user_login: search },
+      ],
+    });
   }
 }
