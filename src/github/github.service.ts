@@ -19,7 +19,7 @@ export class GithubService {
     return response.data;
   }
 
-  async getUserId(username: string): Promise<number> {
+  async getUserId(username?: string): Promise<number | undefined> {
     const response = await firstValueFrom(
       this.httpService.get<{ id: number }>(`${this.githubEndpoint}${username}`),
     );

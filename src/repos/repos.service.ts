@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { RepositoryEntity } from './entities/repository.entity';
 import { IGithubRepository } from '../github/interfaces/github-repository.interface';
 import { GithubService } from 'src/github/github.service';
+import { SyncDto } from './dto/sync.dto';
 
 @Injectable()
 export class ReposService {
@@ -18,9 +19,7 @@ export class ReposService {
     return this.repositoryEntity.find({ where: { user_id: userId } });
   }
 
-  async syncByUser(
-    username: string,
-  ): Promise<{ message: string; count: number }> {
+  async syncByUser(username: string): Promise<SyncDto> {
     const repos: IGithubRepository[] =
       await this.githubService.getUserRepos(username);
 
@@ -83,5 +82,21 @@ export class ReposService {
         { user_login: search },
       ],
     });
+  }
+
+  async getAnalytics(user?: string, topN?: number): Promise<any> {
+    const userId = await this.githubService.getUserId(user);
+
+    const queryBuilder = this.repositoryEntity.createQueryBuilder('repo');
+
+    if (userId) {
+      queryBuilder.andWhere('repo.user_id = :userId', { userId });
+    }
+
+    if (topN) {
+      queryBuilder.take(topN);
+    }
+
+    return queryBuilder.getMany();
   }
 }
