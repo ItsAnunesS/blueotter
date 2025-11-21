@@ -6,7 +6,7 @@ import {
   IGithubRepository,
   IUserRepoCount,
 } from '../github/interfaces/github-repository.interface';
-import { GithubService } from 'src/github/github.service';
+import { GithubService } from '../github/github.service';
 import { SyncDto } from './dtos/sync.dto';
 import { AnalyticsDto } from './dtos/analytics.dto';
 

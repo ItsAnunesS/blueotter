@@ -1,98 +1,89 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# BlueOtter Backend Challenge
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project is a backend solution developed in Node.js with NestJS to interact with and manipulate GitHub user data. It allows synchronizing public repositories of a GitHub user into a local PostgreSQL database and provides endpoints to list, search, and analyze the stored data.
 
-## Project setup
+For more details about the challenge requirements, please refer to [CHALLENGE.md](CHALLENGE.md).
 
-```bash
-$ yarn install
-```
+## Technologies
 
-## Compile and run the project
+- [NestJS](https://nestjs.com/) - A progressive Node.js framework.
+- [TypeORM](https://typeorm.io/) - ORM for TypeScript and JavaScript.
+- [PostgreSQL](https://www.postgresql.org/) - Relational database.
+- [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) - Containerization.
 
-```bash
-# development
-$ yarn run start
+## How to Run
 
-# watch mode
-$ yarn run start:dev
+### Prerequisites
 
-# production mode
-$ yarn run start:prod
-```
+- Docker and Docker Compose installed on your machine.
 
-## Run tests
+### Steps
 
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+1.  Clone the repository.
+2.  Create a `.env` file based on `.env.example` (if available) or ensure the environment variables in `docker-compose.yml` are sufficient.
+3.  Run the application using Docker Compose:
 
 ```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The application will be available at `http://localhost:3000`.
 
-## Resources
+## API Endpoints
 
-Check out a few resources that may come in handy when working with NestJS:
+### Repositories
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### Sync User Repositories
 
-## Support
+Copies all public repositories of a given GitHub user into the local database.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- **URL:** `/repos/sync/:user`
+- **Method:** `POST`
+- **URL Params:**
+  - `user`: GitHub username
+- **Success Response:**
+  - Code: 200 OK
+  - Content: Object containing synchronization details.
 
-## Stay in touch
+#### Get User Repositories
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Lists all repositories stored in the local database for a specific user.
 
-## License
+- **URL:** `/repos/:user`
+- **Method:** `GET`
+- **URL Params:**
+  - `user`: GitHub username
+- **Success Response:**
+  - Code: 200 OK
+  - Content: Array of repository objects.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+#### Search Repositories
+
+Searches for repositories stored in the local database matching the search query.
+
+- **URL:** `/repos`
+- **Method:** `GET`
+- **Query Params:**
+  - `search`: Keywords to match against repository data (optional).
+- **Success Response:**
+  - Code: 200 OK
+  - Content: Array of repository objects.
+
+#### Get Analytics
+
+Returns statistics computed from the synchronized local data.
+
+- **URL:** `/repos/analytics`
+- **Method:** `GET`
+- **Query Params:**
+  - `user`: GitHub username (optional). If provided, returns stats for that user. If not, returns global stats.
+  - `topN`: Number of top users to return (optional, default: 5).
+- **Success Response:**
+  - Code: 200 OK
+  - Content: Analytics object containing summary, language stats, top users (global only), and timeline.
+
+## Swagger Documentation
+
+You can access the Swagger API documentation at `http://localhost:3000/swagger`.
