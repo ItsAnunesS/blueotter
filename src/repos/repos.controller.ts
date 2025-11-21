@@ -1,6 +1,11 @@
 import { Controller, Post, Param, Get, Query } from '@nestjs/common';
 import { ReposService } from './repos.service';
-import { ApiOkResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AnalyticsDto } from './dtos/analytics.dto';
 import { RepositoryEntity } from './entities/repository.entity';
 import { SyncDto } from './dtos/sync.dto';
@@ -14,6 +19,7 @@ export class ReposController {
   @Post('/sync/:user')
   @ApiParam({ name: 'user', required: true, description: 'GitHub username' })
   @ApiOkResponse({ type: SyncDto })
+  @ApiInternalServerErrorResponse()
   syncUserRepositories(@Param('user') user: string) {
     return this.reposService.syncByUser(user);
   }
@@ -27,6 +33,7 @@ export class ReposController {
     description: 'Number of top users to return',
   })
   @ApiOkResponse({ type: AnalyticsDto })
+  @ApiInternalServerErrorResponse()
   getAnalytics(@Query('user') user?: string, @Query('topN') topN?: number) {
     return this.reposService.getAnalytics(user, topN);
   }
@@ -34,6 +41,7 @@ export class ReposController {
   @Get('/:user')
   @ApiParam({ name: 'user', required: true, description: 'GitHub username' })
   @ApiOkResponse({ type: [RepositoryEntity] })
+  @ApiInternalServerErrorResponse()
   getUserRepositories(@Param('user') user: string) {
     return this.reposService.getByUser(user);
   }
@@ -41,6 +49,7 @@ export class ReposController {
   @Get('/')
   @ApiQuery({ name: 'search', required: false, description: 'Search query' })
   @ApiOkResponse({ type: [RepositoryEntity] })
+  @ApiInternalServerErrorResponse()
   getAllRepositories(@Query('search') search?: string) {
     return this.reposService.getAll(search);
   }
